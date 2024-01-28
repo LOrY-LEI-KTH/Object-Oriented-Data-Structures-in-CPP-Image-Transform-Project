@@ -16,6 +16,9 @@ namespace uiuc {
   // (Remember to end it with a semicolon!)
 	class HSLAPixel{
 	public:
+		// Constructor
+		 HSLAPixel(double hh = 0.0, double ss = 0.0, double ll = 0.0, double aa = 1.0);
+
 		double h;
 		double s;
 		double l;

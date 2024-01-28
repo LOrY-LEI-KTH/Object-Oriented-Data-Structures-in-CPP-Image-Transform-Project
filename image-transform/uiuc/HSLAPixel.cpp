@@ -12,4 +12,11 @@
 using namespace std;
 
 namespace uiuc {
+	// Constructor
+	 HSLAPixel::HSLAPixel(double hh , double ss , double ll , double aa ) 
+	 : h(hh)
+	 , s(ss)
+	 , l(ll)
+	 , a(aa)
+	 {}
 }

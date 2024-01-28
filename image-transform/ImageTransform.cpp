@@ -67,7 +67,24 @@ PNG grayscale(PNG image) {
  * @return The image with a spotlight.
  */
 PNG createSpotlight(PNG image, int centerX, int centerY) {
-
+ auto euD = [] (int cX, int cY, int x, int y) -> double {
+    auto  dx = cX - x;
+    auto dy = cY - y;
+    return std::sqrt(dx * dx + dy *dy);
+  };
+  auto  luminanceAfter = [](double distance, double lBefore) -> double {
+    double maxDecreaseDistance = 160;
+    if (distance > maxDecreaseDistance)
+      return lBefore * 0.2;
+    return lBefore * (1- 0.005 * distance);
+ };
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+      auto distance = euD(centerX, centerY, x, y);
+        pixel.l = luminanceAfter(distance, pixel.l);
+    }
+  }
   return image;
   
 }
@@ -84,7 +101,16 @@ PNG createSpotlight(PNG image, int centerX, int centerY) {
  * @return The illinify'd image.
 **/
 PNG illinify(PNG image) {
-
+ double orangeH = 11;
+ double blueH = 216;
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+      double distanceToOrange = std::abs(pixel.h - orangeH) <= 180 ? std::abs(pixel.h - orangeH) : 360 - std::abs(pixel.h - orangeH);
+       double distanceToBlue = std::abs(pixel.h - blueH) <= 180 ? std::abs(pixel.h - blueH) : 360 - std::abs(pixel.h -blueH);
+      pixel.h = distanceToOrange < distanceToBlue ?  orangeH : blueH;
+    }
+  }
   return image;
 }
  
@@ -102,6 +128,18 @@ PNG illinify(PNG image) {
 * @return The watermarked image.
 */
 PNG watermark(PNG firstImage, PNG secondImage) {
+    auto wid = std::min(firstImage.width(), secondImage.width());
+    auto het = std::min(firstImage.height(), secondImage.height());
 
+    for (unsigned x = 0; x < wid; x++) {
+        for (unsigned y = 0; y < het; y++) {
+          if (secondImage.getPixel(x,y).l < 1.0)
+            continue;
+
+          HSLAPixel & pixel = firstImage.getPixel(x, y);
+          pixel.l = pixel.l  <= 0.8 ? (pixel.l  + 0.2) : 1.0;
+      
+      }
+    }
   return firstImage;
 }
